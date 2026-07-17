@@ -46,6 +46,15 @@ class FunFactService {
 		return sanitized.substring(0, 50);
 	}
 
+	getPromptTemplates() {
+		return {
+			normal: (vegetable) => `Write a short, interesting fun fact about the vegetable ${vegetable} in one sentence.`,
+			funny: (vegetable) => `Write a hilarious and funny fun fact about the vegetable ${vegetable} that will make someone laugh. Keep it to one sentence.`,
+			professional: (vegetable) => `Provide an educational and scientifically accurate fun fact about the vegetable ${vegetable} in one sentence.`,
+			casual: (vegetable) => `Hey! Give me a cool and casual fun fact about the vegetable ${vegetable} in one sentence.`
+		};
+	}
+
 	async generateFunFact(vegetable, tone = 'normal') {
 		if (!this.isModelLoaded || this.isGenerating) {
 			throw new Error('Model belum siap atau sedang menghasilkan fakta');
@@ -62,7 +71,9 @@ class FunFactService {
 
 		this.isGenerating = true;
 		try {
-			const prompt = `Tell me a very interesting and surprising fun fact about the vegetable ${sanitized}.`;
+			const templates = this.getPromptTemplates();
+			const promptGenerator = templates[tone] || templates['normal'];
+			const prompt = promptGenerator(sanitized);
 
 			const result = await this.generator(prompt, {
 				max_new_tokens: 50,

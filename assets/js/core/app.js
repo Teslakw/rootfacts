@@ -164,10 +164,14 @@ class RootFactsApp {
 	async generateAndShowResults(detectionResult) {
 		try {
 			this.ui.showResults(detectionResult, null);
-
 			this.ui.updateFunFactState('loading');
+
+			const toneSelect = document.getElementById('tone-select');
+			const selectedTone = toneSelect ? toneSelect.value : 'normal';
+
 			const funFactData = await this.funFactGenerator.generateFunFact(
-				detectionResult.className
+				detectionResult.className,
+				selectedTone
 			);
 
 			this.ui.updateFunFactState('success', funFactData);
