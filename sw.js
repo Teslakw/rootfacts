@@ -1,4 +1,3 @@
-// [Basic] Service Worker dengan Workbox untuk precaching
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/7.0.0/workbox-sw.js');
 
 workbox.setConfig({ debug: false });
@@ -8,7 +7,6 @@ const { registerRoute } = workbox.routing;
 const { CacheFirst, NetworkFirst, StaleWhileRevalidate } = workbox.strategies;
 const { ExpirationPlugin } = workbox.expiration;
 
-// [Basic] Precache file utama aplikasi beserta model
 precacheAndRoute([
   { url: '/', revision: '2.0.0' },
   { url: '/index.html', revision: '2.0.0' },
@@ -30,10 +28,8 @@ precacheAndRoute([
   { url: '/model/weights.bin', revision: '2.0.0' },
 ]);
 
-// Bersihkan cache lama saat update
 cleanupOutdatedCaches();
 
-// [Basic] Cache model TensorFlow.js Dicoding — CacheFirst (tidak berubah)
 registerRoute(
   ({ url }) => url.pathname.startsWith('/model/'),
   new CacheFirst({

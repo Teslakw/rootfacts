@@ -15,7 +15,6 @@ class CameraService {
 		this.init();
 	}
 
-	// [Basic] Inisialisasi elemen DOM
 	initializeElements() {
 		this.video  = document.getElementById('videoElement');
 		this.canvas = document.getElementById('canvasElement');
@@ -25,7 +24,6 @@ class CameraService {
 		await this.loadCameras();
 	}
 
-	// [Basic] Muat daftar kamera yang tersedia
 	async loadCameras() {
 		try {
 			// Minta izin kamera agar enumerateDevices mengembalikan label
@@ -51,7 +49,6 @@ class CameraService {
 		}
 	}
 
-	// [Basic] Mulai kamera
 	async startCamera() {
 		try {
 			if (this.stream) this.stopCamera();
@@ -77,7 +74,6 @@ class CameraService {
 		}
 	}
 
-	// [Basic] Hentikan kamera
 	stopCamera() {
 		if (this.stream) {
 			this.stream.getTracks().forEach(track => track.stop());
@@ -88,7 +84,6 @@ class CameraService {
 		}
 	}
 
-	// [Skilled] Atur FPS kamera
 	setFPS(fps) {
 		if (this.stream) {
 			this.stream.getVideoTracks().forEach(track => {
@@ -97,12 +92,10 @@ class CameraService {
 		}
 	}
 
-	// [Basic] Periksa apakah kamera aktif
 	isActive() {
 		return this.stream !== null && this.stream.active;
 	}
 
-	// [Basic] Periksa apakah kamera siap
 	isReady() {
 		return this.video !== null && this.isActive();
 	}

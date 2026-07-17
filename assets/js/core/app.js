@@ -22,11 +22,9 @@ class RootFactsApp {
 		this.bindEvents();
 		this.init();
 
-		// [Basic] Daftarkan Service Worker
 		this.registerServiceWorker();
 	}
 
-	// [Basic] Bind semua event listener
 	bindEvents() {
 		this.ui.bindEvents({
 			onToggleCamera: () => this.toggleCamera(),
@@ -36,17 +34,14 @@ class RootFactsApp {
 					this.startCamera();
 				}
 			},
-			// [Skilled] FPS change
 			onFPSChange: (fps) => {
 				this.currentFPS = fps;
 				if (this.camera) this.camera.setFPS(fps);
 			},
-			// [Skilled] Copy fun fact
 			onCopy: () => this.copyFunFact(),
 		});
 	}
 
-	// [Basic] Inisialisasi aplikasi
 	async init() {
 		try {
 			this.ui.updateHeaderStatus('Memuat model...', false);
@@ -72,7 +67,6 @@ class RootFactsApp {
 		}
 	}
 
-	// [Basic] Daftarkan Service Worker
 	async registerServiceWorker() {
 		if ('serviceWorker' in navigator) {
 			try {
@@ -84,7 +78,6 @@ class RootFactsApp {
 		}
 	}
 
-	// [Skilled] Salin fun fact ke clipboard
 	async copyFunFact() {
 		const text = this.ui.getFunFactText();
 		if (!text) return;
@@ -97,7 +90,6 @@ class RootFactsApp {
 		}
 	}
 
-	// [Basic] Toggle kamera aktif/nonaktif
 	toggleCamera() {
 		if (this.isRunning) {
 			this.stopDetection();
@@ -109,7 +101,6 @@ class RootFactsApp {
 		}
 	}
 
-	// [Basic] Mulai kamera
 	async startCamera() {
 		try {
 			await this.camera.startCamera();
@@ -121,12 +112,10 @@ class RootFactsApp {
 		}
 	}
 
-	// [Basic] Hentikan kamera
 	stopCamera() {
 		if (this.camera) this.camera.stopCamera();
 	}
 
-	// [Basic] Mulai loop deteksi
 	startDetection() {
 		this.isRunning     = true;
 		const loopId       = Symbol();
@@ -134,13 +123,11 @@ class RootFactsApp {
 		this.detectLoop(loopId);
 	}
 
-	// [Basic] Hentikan deteksi
 	stopDetection() {
 		this.isRunning     = false;
 		this.currentLoopId = null;
 	}
 
-	// [Basic] Loop deteksi utama
 	async detectLoop(loopId) {
 		while (this.isRunning && this.currentLoopId === loopId) {
 			const video = document.getElementById('videoElement');
@@ -149,15 +136,12 @@ class RootFactsApp {
 					const result = await this.detector.predict(video);
 
 					if (isValidDetection(result)) {
-						// Tampilkan state loading sebentar
 						this.ui.switchToState('loading');
 						await createDelay(this.config.analyzingDelay);
 
-						// Jika masih running dan loopId sama, tampilkan hasil
 						if (this.isRunning && this.currentLoopId === loopId) {
 							const success = await this.generateAndShowResults(result);
 							if (success) {
-								// ✅ Setelah fun fact tampil → stop deteksi
 								// User harus tekan tombol lagi untuk scan baru
 								this.stopDetection();
 								this.stopCamera();
@@ -176,20 +160,16 @@ class RootFactsApp {
 		}
 	}
 
-	// [Basic] Generate dan tampilkan fun fact
 	// Returns true jika berhasil, false jika error
 	async generateAndShowResults(detectionResult) {
 		try {
-			// Tampilkan hasil deteksi dulu (fun fact loading)
 			this.ui.showResults(detectionResult, null);
 
-			// Generate fun fact
 			this.ui.updateFunFactState('loading');
 			const funFactData = await this.funFactGenerator.generateFunFact(
 				detectionResult.className
 			);
 
-			// Tampilkan fun fact
 			this.ui.updateFunFactState('success', funFactData);
 			this.currentFunFact = funFactData.funFact;
 			return true; // ✅ berhasil
