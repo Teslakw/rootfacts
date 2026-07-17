@@ -75,7 +75,8 @@ class FunFactService {
 			const result = await this.generator(prompt, {
 				max_new_tokens: 50,
 				temperature:    0.3,
-				do_sample:      true,
+				do_sample:      false, // Gunakan greedy decoding agar tidak terjadi looping kata
+				repetition_penalty: 1.5, // Mencegah AI mengulang-ulang kalimat (seperti "a sliver of...")
 			});
 
 			const rawText  = result?.[0]?.generated_text ?? '';
