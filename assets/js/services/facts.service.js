@@ -48,10 +48,10 @@ class FunFactService {
 
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) => `Write a short, interesting fun fact about the vegetable ${vegetable} in one sentence.`,
-			funny: (vegetable) => `Write a hilarious and funny fun fact about the vegetable ${vegetable} that will make someone laugh. Keep it to one sentence.`,
-			professional: (vegetable) => `Provide an educational and scientifically accurate fun fact about the vegetable ${vegetable} in one sentence.`,
-			casual: (vegetable) => `Hey! Give me a cool and casual fun fact about the vegetable ${vegetable} in one sentence.`
+			normal: (vegetable) => `Write a short fact about ${vegetable}.`,
+			funny: (vegetable) => `Write a funny joke or funny fact about ${vegetable}.`,
+			professional: (vegetable) => `Write a scientific and botanical fact about ${vegetable}.`,
+			casual: (vegetable) => `Write a simple everyday fact about eating ${vegetable}.`
 		};
 	}
 
