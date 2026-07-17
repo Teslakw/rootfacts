@@ -1,1 +1,1 @@
-APP_URL=https://[ISI-URL-NETLIFY-KAMU].netlify.app
+https://aesthetic-cocada-9be3e7.netlify.app/
