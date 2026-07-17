@@ -49,10 +49,10 @@ class FunFactService {
 
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) => `The object is a vegetable named ${vegetable}. Write a short fact about this vegetable and its health benefits.`,
-			funny: (vegetable) => `The object is a vegetable named ${vegetable}. Write a funny joke about eating this vegetable.`,
-			professional: (vegetable) => `The object is a vegetable named ${vegetable}. Write a scientific botanical fact about this vegetable plant.`,
-			casual: (vegetable) => `The object is a vegetable named ${vegetable}. Write a casual everyday tip about cooking or eating this vegetable.`
+			normal: (vegetable) => `${vegetable} is a vegetable. What is one unique fact about ${vegetable}?`,
+			funny: (vegetable) => `${vegetable} is a vegetable. What is one surprising or weird fact about ${vegetable}?`,
+			professional: (vegetable) => `${vegetable} is a vegetable. What nutrient is ${vegetable} most known for?`,
+			casual: (vegetable) => `${vegetable} is a vegetable. How is ${vegetable} commonly used in cooking?`
 		};
 	}
 
@@ -77,11 +77,11 @@ class FunFactService {
 			const prompt = promptGenerator(sanitized);
 
 			const result = await this.generator(prompt, {
-				max_new_tokens: 150,
-				temperature: 0.1, // Suhu sangat rendah agar tidak halusinasi
-				do_sample: false, // Matikan sampling (greedy decoding) agar logis
+				max_new_tokens: 60,
+				temperature: 0.4,
+				do_sample: true,
 				top_p: 0.9,
-				repetition_penalty: 1.2
+				repetition_penalty: 1.5
 			});
 
 			let factText = result?.[0]?.generated_text ?? '';
