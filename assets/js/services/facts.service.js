@@ -70,13 +70,13 @@ class FunFactService {
 		this.isGenerating = true;
 		try {
 			// Saran Reviewer: Gunakan prompt spesifik untuk instruksi
-			const prompt = `Write a short fun fact about ${sanitized} vegetable.`;
+			const prompt = `Tell me a very interesting and surprising fun fact about the vegetable ${sanitized}.`;
 
 			const result = await this.generator(prompt, {
 				max_new_tokens: 50,
-				temperature:    0.3,
-				do_sample:      false, // Gunakan greedy decoding agar tidak terjadi looping kata
-				repetition_penalty: 1.5, // Mencegah AI mengulang-ulang kalimat (seperti "a sliver of...")
+				temperature:    0.6,
+				do_sample:      true, // Aktifkan kreativitas lagi
+				repetition_penalty: 1.8, // Penalti lebih tinggi agar tidak looping
 			});
 
 			const rawText  = result?.[0]?.generated_text ?? '';
