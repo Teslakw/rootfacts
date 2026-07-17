@@ -49,10 +49,10 @@ class FunFactService {
 
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) => `Provide a fact specifically about ${vegetable}. Focus only on ${vegetable}.`,
-			funny: (vegetable) => `Tell a funny joke specifically about ${vegetable}. Focus only on ${vegetable}.`,
-			professional: (vegetable) => `Explain a health or scientific fact specifically about ${vegetable}. Focus only on ${vegetable}.`,
-			casual: (vegetable) => `Give a casual everyday fact specifically about ${vegetable}. Focus only on ${vegetable}.`
+			normal: (vegetable) => `The object is a vegetable named ${vegetable}. Write a short fact about this vegetable and its health benefits.`,
+			funny: (vegetable) => `The object is a vegetable named ${vegetable}. Write a funny joke about eating this vegetable.`,
+			professional: (vegetable) => `The object is a vegetable named ${vegetable}. Write a scientific botanical fact about this vegetable plant.`,
+			casual: (vegetable) => `The object is a vegetable named ${vegetable}. Write a casual everyday tip about cooking or eating this vegetable.`
 		};
 	}
 
