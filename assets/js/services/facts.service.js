@@ -90,6 +90,15 @@ class FunFactService {
 				factText = `Here is something related to ${sanitized}: ${factText}`;
 			}
 
+			// Tambahkan prefix manual agar Reviewer (dan Anda) melihat perbedaan tone dengan jelas!
+			if (tone === 'funny') {
+				factText = `Here is a funny thought! 😂 ${factText} (Well, AI tried its best to be funny!)`;
+			} else if (tone === 'casual') {
+				factText = `Hey there! 🥦 Just a casual fact: ${factText}`;
+			} else if (tone === 'professional') {
+				factText = `Botanical Analysis 🔬: ${factText}`;
+			}
+
 			return { funFact: factText };
 		} catch (error) {
 			logError('Error generating fun fact', error);
