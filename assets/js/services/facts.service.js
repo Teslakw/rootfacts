@@ -49,10 +49,10 @@ class FunFactService {
 
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) => `Write a beautiful fact about the vegetable ${vegetable} and its health benefits.`,
-			funny: (vegetable) => `Write a creative and funny fact about the vegetable ${vegetable}.`,
-			professional: (vegetable) => `Write a scientific and botanical fact about the vegetable ${vegetable}.`,
-			casual: (vegetable) => `Write a simple everyday fact about eating the vegetable ${vegetable}.`
+			normal: (vegetable) => `Provide a fact specifically about ${vegetable}. Focus only on ${vegetable}.`,
+			funny: (vegetable) => `Tell a funny joke specifically about ${vegetable}. Focus only on ${vegetable}.`,
+			professional: (vegetable) => `Explain a health or scientific fact specifically about ${vegetable}. Focus only on ${vegetable}.`,
+			casual: (vegetable) => `Give a casual everyday fact specifically about ${vegetable}. Focus only on ${vegetable}.`
 		};
 	}
 
@@ -83,9 +83,14 @@ class FunFactService {
 				top_p: 0.9
 			});
 
-			const rawText  = result?.[0]?.generated_text ?? '';
+			let factText = result?.[0]?.generated_text ?? '';
 			
-			return { funFact: rawText };
+			// Fallback cerdas: Jika AI berhalusinasi dan lupa menyebutkan objeknya, kita paksa sebutkan!
+			if (factText && !factText.toLowerCase().includes(sanitized.toLowerCase())) {
+				factText = `Here is something related to ${sanitized}: ${factText}`;
+			}
+
+			return { funFact: factText };
 		} catch (error) {
 			logError('Error generating fun fact', error);
 			throw new Error(`Failed to generate fun fact: ${error.message}`);
