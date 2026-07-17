@@ -20,8 +20,9 @@ class FunFactService {
 
 			this.generator = await pipeline(
 				'text2text-generation',
-				'Xenova/flan-t5-small',
+				'Xenova/LaMini-Flan-T5-77M',
 				{
+					dtype: 'q4',
 					progress_callback: (info) => {
 						if (info.status === 'downloading') {
 							console.log(`Mengunduh model AI: ${Math.round(info.progress ?? 0)}%`);
@@ -48,10 +49,10 @@ class FunFactService {
 
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) => `Write a short fact about ${vegetable}.`,
-			funny: (vegetable) => `Write a funny joke or funny fact about ${vegetable}.`,
-			professional: (vegetable) => `Write a scientific and botanical fact about ${vegetable}.`,
-			casual: (vegetable) => `Write a simple everyday fact about eating ${vegetable}.`
+			normal: (vegetable) => `Write a beautiful fact about the vegetable ${vegetable} and its health benefits.`,
+			funny: (vegetable) => `Write a creative and funny fact about the vegetable ${vegetable}.`,
+			professional: (vegetable) => `Write a scientific and botanical fact about the vegetable ${vegetable}.`,
+			casual: (vegetable) => `Write a simple everyday fact about eating the vegetable ${vegetable}.`
 		};
 	}
 
@@ -76,10 +77,10 @@ class FunFactService {
 			const prompt = promptGenerator(sanitized);
 
 			const result = await this.generator(prompt, {
-				max_new_tokens: 50,
-				temperature:    0.6,
-				do_sample:      true,
-				repetition_penalty: 1.8,
+				max_new_tokens: 150,
+				temperature: 0.8,
+				do_sample: true,
+				top_p: 0.9
 			});
 
 			const rawText  = result?.[0]?.generated_text ?? '';
