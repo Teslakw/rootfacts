@@ -69,15 +69,15 @@ class FunFactService {
 
 		this.isGenerating = true;
 		try {
-			// Prompt berbasis tone (Advanced hook — saat ini default ke normal)
-			const prompt = `Fun fact about ${sanitized}: Did you know that ${sanitized}`;
+			// Saran Reviewer: Gunakan prompt spesifik dan turunkan parameter temperature/top_p
+			const prompt = `Here is an interesting fact about ${sanitized}: Did you know that ${sanitized}`;
 
 			const result = await this.generator(prompt, {
-				max_new_tokens: 80,
-				temperature:    0.8,
-				top_p:          0.9,
+				max_new_tokens: 50,
+				temperature:    0.3,
+				top_p:          0.7,
 				do_sample:      true,
-				repetition_penalty: 1.2,
+				repetition_penalty: 1.5,
 			});
 
 			const rawText  = result?.[0]?.generated_text ?? '';
