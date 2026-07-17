@@ -78,9 +78,10 @@ class FunFactService {
 
 			const result = await this.generator(prompt, {
 				max_new_tokens: 150,
-				temperature: 0.8,
-				do_sample: true,
-				top_p: 0.9
+				temperature: 0.1, // Suhu sangat rendah agar tidak halusinasi
+				do_sample: false, // Matikan sampling (greedy decoding) agar logis
+				top_p: 0.9,
+				repetition_penalty: 1.2
 			});
 
 			let factText = result?.[0]?.generated_text ?? '';
