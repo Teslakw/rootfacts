@@ -20,10 +20,10 @@ class FunFactService {
 			env.allowLocalModels = false;
 			env.useBrowserCache  = true;
 
-			// [Basic] Gunakan model ringan untuk text generation
+			// [Basic] Gunakan model text2text-generation (flan-t5-small) yang lebih pintar untuk instruksi
 			this.generator = await pipeline(
-				'text-generation',
-				'Xenova/distilgpt2',
+				'text2text-generation',
+				'Xenova/flan-t5-small',
 				{
 					progress_callback: (info) => {
 						if (info.status === 'downloading') {
@@ -69,24 +69,18 @@ class FunFactService {
 
 		this.isGenerating = true;
 		try {
-			// Saran Reviewer: Gunakan prompt spesifik dan turunkan parameter temperature/top_p
-			const prompt = `Here is an interesting fact about ${sanitized}: Did you know that ${sanitized}`;
+			// Saran Reviewer: Gunakan prompt spesifik untuk instruksi
+			const prompt = `Write a short fun fact about ${sanitized} vegetable.`;
 
 			const result = await this.generator(prompt, {
 				max_new_tokens: 50,
 				temperature:    0.3,
-				top_p:          0.7,
 				do_sample:      true,
-				repetition_penalty: 1.5,
 			});
 
 			const rawText  = result?.[0]?.generated_text ?? '';
-			// Ambil teks setelah prompt
-			const factText = rawText.startsWith(prompt)
-				? rawText.slice(prompt.length).trim()
-				: rawText.trim();
-
-			return { funFact: prompt + ' ' + factText };
+			
+			return { funFact: rawText };
 		} catch (error) {
 			logError('Error generating fun fact', error);
 			throw new Error(`Failed to generate fun fact: ${error.message}`);
