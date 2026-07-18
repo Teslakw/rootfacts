@@ -45,24 +45,44 @@ class FunFactService {
 		return sanitized.substring(0, 50);
 	}
 
+	getVegetableHint(vegetable) {
+		const hints = {
+			beetroot: 'dark red root, rich in nitrates, used for borscht soup',
+			paprika: 'colorful bell pepper, high in vitamin C, used in salads',
+			cabbage: 'leafy green head, rich in vitamin K, used for coleslaw and kimchi',
+			carrot: 'orange root, rich in beta-carotene and vitamin A, good for eyesight',
+			cauliflower: 'white floret head, rich in choline, low-carb rice substitute',
+			chilli: 'spicy hot pepper, contains capsaicin, boosts metabolism',
+			corn: 'yellow kernels on a cob, rich in fiber, used for popcorn and tortillas',
+			cucumber: 'green and hydrating, 95% water content, used in salads and pickles',
+			eggplant: 'purple skin, contains nasunin antioxidant, used in ratatouille',
+			garlic: 'pungent bulb, contains allicin, natural antibiotic properties',
+			ginger: 'spicy rhizome root, contains gingerol, relieves nausea',
+			lettuce: 'crispy leafy green, low calorie, base for salads and wraps',
+			onion: 'layered bulb, rich in quercetin, makes you cry when cut',
+			peas: 'small green pods, high in plant protein, sweet taste',
+			potato: 'starchy tuber, rich in potassium, most consumed vegetable worldwide',
+			turnip: 'white root vegetable, rich in glucosinolates, peppery taste',
+			soybean: 'protein-rich legume, source of tofu and soy milk, contains isoflavones',
+			spinach: 'dark leafy green, very rich in iron, famously eaten by Popeye'
+		};
+		return hints[vegetable.toLowerCase()] || 'nutritious vegetable with health benefits';
+	}
+
 	getPromptTemplates() {
 		return {
-			normal: (vegetable) =>
-				`${vegetable} is a vegetable that people eat for nutrition and health. ` +
-				`Give one fact about ${vegetable} as a food or vegetable. ` +
-				`Only discuss ${vegetable} as a vegetable.`,
-			funny: (vegetable) =>
-				`${vegetable} is a vegetable used in cooking. ` +
-				`Give one surprising or fun fact about ${vegetable} as a food. ` +
-				`Only discuss ${vegetable} as a vegetable.`,
-			professional: (vegetable) =>
-				`${vegetable} is a vegetable with nutritional value. ` +
-				`Give one fact about ${vegetable} nutrition or health benefit. ` +
-				`Only discuss ${vegetable} as a vegetable.`,
-			casual: (vegetable) =>
-				`${vegetable} is a vegetable used in meals. ` +
-				`Give one cooking tip about ${vegetable}. ` +
-				`Only discuss ${vegetable} as a vegetable.`
+			normal: (vegetable, hint) =>
+				`${vegetable} is a vegetable (${hint}). ` +
+				`Explain why ${vegetable} is good for health.`,
+			funny: (vegetable, hint) =>
+				`${vegetable} is a vegetable (${hint}). ` +
+				`Tell one weird or surprising thing about ${vegetable}.`,
+			professional: (vegetable, hint) =>
+				`${vegetable} is a vegetable (${hint}). ` +
+				`What specific nutrient makes ${vegetable} special?`,
+			casual: (vegetable, hint) =>
+				`${vegetable} is a vegetable (${hint}). ` +
+				`How do people usually cook or eat ${vegetable}?`
 		};
 	}
 
@@ -82,9 +102,10 @@ class FunFactService {
 
 		this.isGenerating = true;
 		try {
+			const hint = this.getVegetableHint(sanitized);
 			const templates = this.getPromptTemplates();
 			const promptGenerator = templates[tone] || templates['normal'];
-			const prompt = promptGenerator(sanitized);
+			const prompt = promptGenerator(sanitized, hint);
 
 			const result = await this.generator(prompt, {
 				max_new_tokens: 60,
