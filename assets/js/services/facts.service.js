@@ -1,26 +1,5 @@
 import { logError } from '../core/utils.js';
 
-const VEGETABLE_CONTEXT = {
-	Beetroot: "Beetroot is a dark red root vegetable, rich in nitrates and folate.",
-	Paprika: "Paprika is a colorful fruit vegetable, high in vitamin C and vitamin A.",
-	Cabbage: "Cabbage is a leafy green or purple vegetable, rich in vitamin K and fiber.",
-	Carrot: "Carrot is an orange root vegetable, rich in beta-carotene and vitamin A.",
-	Cauliflower: "Cauliflower is a white head vegetable, rich in choline and vitamin C.",
-	Chilli: "Chilli is a spicy pepper vegetable, rich in capsaicin and vitamin C.",
-	Corn: "Corn is a yellow grain vegetable, rich in fiber and antioxidants.",
-	Cucumber: "Cucumber is a green hydrating vegetable, rich in water and vitamin K.",
-	eggplant: "Eggplant is a purple fruit vegetable, rich in nasunin and fiber.",
-	Garlic: "Garlic is a pungent bulb vegetable, rich in allicin and manganese.",
-	Ginger: "Ginger is a spicy root vegetable, rich in gingerol and antioxidants.",
-	Lettuce: "Lettuce is a leafy green vegetable, rich in vitamin K and folate.",
-	Onion: "Onion is a pungent bulb vegetable, rich in quercetin and fiber.",
-	Peas: "Peas are small green legume vegetables, rich in protein and fiber.",
-	Potato: "Potato is a starchy tuber vegetable, rich in potassium and vitamin C.",
-	Turnip: "Turnip is a white root vegetable, rich in vitamin C and glucosinolates.",
-	Soybean: "Soybean is a protein-rich legume vegetable, rich in isoflavones.",
-	Spinach: "Spinach is a dark leafy vegetable, rich in iron and vitamin K."
-};
-
 class FunFactService {
 	constructor() {
 		this.generator      = null;
@@ -66,14 +45,25 @@ class FunFactService {
 		return sanitized.substring(0, 50);
 	}
 
-	buildContext(vegetable) {
-		const key = Object.keys(VEGETABLE_CONTEXT).find(
-			k => k.toLowerCase() === vegetable.toLowerCase()
-		);
-		if (key) {
-			return VEGETABLE_CONTEXT[key];
-		}
-		return `${vegetable} is a healthy vegetable rich in vitamins and minerals.`;
+	getPromptTemplates() {
+		return {
+			normal: (vegetable) =>
+				`${vegetable} is a vegetable that people eat for nutrition and health. ` +
+				`Give one fact about ${vegetable} as a food or vegetable. ` +
+				`Only discuss ${vegetable} as a vegetable.`,
+			funny: (vegetable) =>
+				`${vegetable} is a vegetable used in cooking. ` +
+				`Give one surprising or fun fact about ${vegetable} as a food. ` +
+				`Only discuss ${vegetable} as a vegetable.`,
+			professional: (vegetable) =>
+				`${vegetable} is a vegetable with nutritional value. ` +
+				`Give one fact about ${vegetable} nutrition or health benefit. ` +
+				`Only discuss ${vegetable} as a vegetable.`,
+			casual: (vegetable) =>
+				`${vegetable} is a vegetable used in meals. ` +
+				`Give one cooking tip about ${vegetable}. ` +
+				`Only discuss ${vegetable} as a vegetable.`
+		};
 	}
 
 	async generateFunFact(vegetable, tone = 'normal') {
@@ -92,27 +82,12 @@ class FunFactService {
 
 		this.isGenerating = true;
 		try {
-			const context = this.buildContext(sanitized);
-
-			const toneInstructions = {
-				normal: "Give one interesting and accurate fact about this vegetable. Focus on nutrition, origin, or health benefit.",
-				funny: "Give one surprising or fun fact about this vegetable. Keep it light and entertaining.",
-				professional: "Give one scientific or nutritional fact about this vegetable. Focus on vitamins, minerals, or health effects.",
-				casual: "Give one simple cooking tip or common use for this vegetable in meals."
-			};
-
-			const instruction = toneInstructions[tone] || toneInstructions['normal'];
-
-			const prompt = `Context: ${context}\n` +
-				`Task: ${instruction}\n` +
-				`Rules:\n` +
-				`- You must ONLY discuss the vegetable ${sanitized}\n` +
-				`- Do NOT discuss population, people, society, economy, or any topic unrelated to ${sanitized}\n` +
-				`- Do NOT make up information about topics other than this vegetable\n` +
-				`Fact about ${sanitized} as a vegetable:`;
+			const templates = this.getPromptTemplates();
+			const promptGenerator = templates[tone] || templates['normal'];
+			const prompt = promptGenerator(sanitized);
 
 			const result = await this.generator(prompt, {
-				max_new_tokens: 80,
+				max_new_tokens: 60,
 				temperature: 0.3,
 				do_sample: true,
 				top_p: 0.85,
@@ -121,51 +96,25 @@ class FunFactService {
 
 			let factText = result?.[0]?.generated_text ?? '';
 
-			// Bersihkan output
+			// Bersihkan output dari prompt yang mungkin bocor
 			factText = factText.replace(/^[\s:]+/, '').trim();
 
-			// Validasi 1: pastikan fakta menyebutkan nama sayuran
+			// Validasi: pastikan fakta menyebutkan nama sayuran
 			const vegLower = sanitized.toLowerCase();
-			const mentionsVegetable = factText.toLowerCase().includes(vegLower);
+			if (!factText.toLowerCase().includes(vegLower)) {
+				factText = `${sanitized} is a healthy vegetable that provides vitamins and minerals.`;
+			}
 
-			// Validasi 2: pastikan tidak ada kata tidak relevan
+			// Validasi: pastikan tidak ada kata tidak relevan
 			const irrelevantKeywords = [
-				'population', 'people', 'human', 'society', 'world population',
-				'census', 'demographic', 'economic', 'gdp', 'birth rate',
-				'death rate', 'life expectancy', 'mortality'
+				'population', 'people', 'human', 'society', 'census',
+				'demographic', 'economic', 'gdp', 'birth rate', 'mortality'
 			];
 			const hasIrrelevant = irrelevantKeywords.some(kw =>
 				factText.toLowerCase().includes(kw)
 			);
-
-			// Validasi 3: pastikan minimal 20 karakter
-			const isLongEnough = factText.length >= 20;
-
-			// Jika validasi gagal, coba generate ulang dengan prompt lebih ketat
-			if (!mentionsVegetable || hasIrrelevant || !isLongEnough) {
-				const retryPrompt = `Write one sentence about ${sanitized} vegetable. ` +
-					`Only mention ${sanitized}. No other topic. ` +
-					`${sanitized} vegetable fact:`;
-
-				const retryResult = await this.generator(retryPrompt, {
-					max_new_tokens: 50,
-					temperature: 0.1,
-					do_sample: false
-				});
-
-				factText = retryResult?.[0]?.generated_text ?? '';
-				factText = factText.replace(/^[\s:]+/, '').trim();
-
-				// Validasi ulang
-				const retryMentionsVegetable = factText.toLowerCase().includes(vegLower);
-				const retryHasIrrelevant = irrelevantKeywords.some(kw =>
-					factText.toLowerCase().includes(kw)
-				);
-
-				// Jika masih gagal, gunakan prompt paling dasar
-				if (!retryMentionsVegetable || retryHasIrrelevant || factText.length < 15) {
-					factText = `${sanitized} is a healthy vegetable that provides vitamins and minerals for the body.`;
-				}
+			if (hasIrrelevant) {
+				factText = `${sanitized} is a nutritious vegetable known for its health benefits.`;
 			}
 
 			return { funFact: factText };
